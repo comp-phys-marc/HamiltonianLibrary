@@ -113,6 +113,19 @@ def Hdip(R, Rl, S, Il):
 # Orbital coupling Hamiltonian
 def Horb(R, Rl, Ll, Il):
     """
-    Returns the diploar coupling between an electron at position R with orbital angular momentum Ll about site l and a nucleus with position Rl and spin Il.
+    Returns the orbital coupling between an electron at position R with orbital angular momentum Ll about site l and a nucleus with position Rl and spin Il.
     """ 
     return (m0 / 4 * np.pi) * np.abs(gamma_s) * gamma_l * (1 / np.abs(R - Rl) ** 3) * fT(np.abs(R - Rl)) * np.matmul(Ll, Il)
+
+# Dirac equation
+def Hhf(R, S, nuclei):
+    """
+    Nuclei a list of [Rl, Ll, Il].
+    """
+    res = Hc(R, nuclei[0][0], S, nuclei[0][2]) + Hdip(R, nuclei[0][0], S, nuclei[0][2]) + Horb(R, nuclei[0][0], nuclei[0][1], nuclei[0][2])
+    i = 1
+    while i <= len(nuclei):
+        res += Hc(R, nuclei[i][0], S, nuclei[i][2]) + Hdip(R, nuclei[i][0], S, nuclei[i][2]) + Horb(R, nuclei[i][0], nuclei[i][1], nuclei[i][2])
+        i += 1
+
+    return res
