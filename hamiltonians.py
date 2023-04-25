@@ -91,4 +91,4 @@ def Hc(R, Rl, S, Il):
     """
     Returns the Fermi contact interaction between an electron at position R with spin S and a nucleus with position Rl and spin Il.
     """ 
-    return (m0 / 4 * np.pi) * (8 * np.pi / 3) * np.abs(gamma_s) * gamma_l * ((1 / (4 * np.pi * r ** 2)) * d_dr_fT(R - Rl) * S * Il)
+    return (m0 / 4 * np.pi) * (8 * np.pi / 3) * np.abs(gamma_s) * gamma_l * ((1 / (4 * np.pi * r ** 2)) * d_dr_fT(R - Rl) * np.matmul(S, Il))
