@@ -1,5 +1,9 @@
 import qutip
 import numpy as np
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib as mpl
+from matplotlib.colors import ListedColormap
 
 # reduced Planck constant
 hbar = 1 # or 1.054571817 * 10 ** -34 J * s
@@ -84,12 +88,14 @@ def fT(r):
 def d_dr_fT(r):
     return (rT / 2) / (rT / 2 + r) ** 2
 
+prefix = (m0 / 4 * np.pi) * np.abs(gamma_s) * gamma_l
+
 # Fermi contact interaction Hamiltonian
 def Hc(R, Rl, S, Il):
     """
     Returns the Fermi contact interaction between an electron at position R with spin S and a nucleus with position Rl and spin Il.
     """
-    return (m0 / 4 * np.pi) * (8 * np.pi / 3) * np.abs(gamma_s) * gamma_l * ((1 / (4 * np.pi * R ** 2)) * d_dr_fT(R - Rl) * np.matmul(S, Il))
+    return prefix * (8 * np.pi / 3) * ((1 / (4 * np.pi * R ** 2)) * d_dr_fT(R - Rl) * np.dot(S, Il))
 
 # Dipolar tensor
 def D(R):
@@ -108,14 +114,14 @@ def Hdip(R, Rl, S, Il):
     """
     Returns the diploar coupling between an electron at position R with spin S and a nucleus with position Rl and spin Il.
     """ 
-    return (m0 / 4 * np.pi) * np.abs(gamma_s) * gamma_l * np.matmul(np.matmul(S, D(R - Rl)), Il)
+    return prefix * np.dot(S, np.dot(D(R - Rl), Il))
 
 # Orbital coupling Hamiltonian
 def Horb(R, Rl, Ll, Il):
     """
     Returns the orbital coupling between an electron at position R with orbital angular momentum Ll about site l and a nucleus with position Rl and spin Il.
     """ 
-    return (m0 / 4 * np.pi) * np.abs(gamma_s) * gamma_l * (1 / np.abs(R - Rl) ** 3) * fT(np.abs(R - Rl)) * np.matmul(Ll, Il)
+    return prefix * (1 / np.abs(R - Rl) ** 3) * fT(np.abs(R - Rl)) * np.dot(Ll, Il)
 
 # Dirac equation
 def Hhf(R, S, nuclei):
@@ -129,3 +135,37 @@ def Hhf(R, S, nuclei):
         i += 1
 
     return res
+
+
+nuclei = [[np.array([5 * 10 ** -6, 5 * 10 ** -6, 0 * 10 ** -6]), Sx, np.array([1, 0, 0, 0])]]  # is np.array([1, 0, 0, 0]) how to represent a spin 3/2 spin? See https://physics.stackexchange.com/questions/607218/how-would-the-eigenstates-of-a-particle-with-spin-3-2-look-like
+
+
+def fermi_contact_interaction(dimension):
+    data = []
+    for i in range(10):
+        row = []
+        for j in range(10):
+            electron = [np.array([i * 10 ** -6, j * 10 ** -6, 0 * 10 ** -6]), np.array([1, 0, 0, 0])]
+            ham = Hc(electron[0], nuclei[0][0], electron[1], nuclei[0][2])
+            row.append(ham[dimension])
+        data.append(row)
+
+    return data
+
+colors = ["#ffffcc", "#a1dab4", "#41b6c4", "#2c7fb8", "#253494"]
+my_cmap = ListedColormap(colors, name="my_cmap")
+
+def plot_examples(colormap, datasets):
+    """
+    Helper function to plot data with associated colormap.
+    """
+    n = len(datasets)
+    fig, axs = plt.subplots(1, n, figsize=(n * 2 + 2, 3),
+                            constrained_layout=True, squeeze=False)
+    for [ax, data] in zip(axs.flat, datasets):
+        psm = ax.pcolormesh(data, cmap=colormap, rasterized=True, vmin=0, vmax=1 * 10 ** 30)
+        fig.colorbar(psm, ax=ax)
+    plt.show()
+
+plot_examples(my_cmap, [fermi_contact_interaction(0), fermi_contact_interaction(1)])
+print("done")
