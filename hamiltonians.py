@@ -8,21 +8,21 @@ hbar = 1 # or 1.054571817 * 10 ** -34 J * s
 m0 = 9.109 * 10 ** -39 # kg
 
 # Spin-3/2 matrices
-Sx = 0.5 * hbar * np.array([
+Sx = 0.5 * hbar * np.matrix([
     [0, np.sqrt(3), 0, 0],
     [np.sqrt(3), 0, 2, 0],
     [0, 2, 0, np.sqrt(3)],
     [0, 0, np.sqrt(3), 0]
 ])
 
-Sy = 0.5 * hbar * np.array([
+Sy = 0.5 * hbar * np.matrix([
     [0, complex(0, np.sqrt(3)), 0, 0],
     [complex(0, np.sqrt(3)), 0, -2j, 0],
     [0, 2j, 0, complex(0, -np.sqrt(3))],
     [0, 0, complex(0, np.sqrt(3)), 0]
 ])
 
-Sz = 0.5 * hbar * np.array([
+Sz = 0.5 * hbar * np.matrix([
     [3, 0, 0, 0],
     [0, 1, 0, 0],
     [0, 0, -1, 0],
@@ -42,12 +42,10 @@ kz = 1 # kg * m / s
 K = np.array([kx, ky, kz])
 
 # Luttinger Hamiltonian for hole spins
-H = (gamma1 + 5 * gamma2 / 2) * ((hbar ** 2 * K ** 2) / (2 * m0)) \
+H = (gamma1 + 5 * gamma2 / 2) * ((hbar ** 2 * np.dot(K, K)) / (2 * m0)) \
     + gamma2 * (hbar ** 2 / m0) * (kx ** 2 * Sx ** 2 + ky ** 2 * Sy ** 2 + kz ** 2 * Sz ** 2) \
         + gamma3 * (hbar ** 2 / (2 * m0)) * (((kx * ky + ky * kx) / 2) * ((Sx * Sy + Sy * Sx) / 2)) \
             * (((ky * kz + kz * ky) / 2) * ((Sy * Sz + Sz * Sy) / 2)) * (((kz * kx + kx * kz) / 2) * ((Sz * Sx + Sx * Sz) / 2))
-
-
 
 # elmentary charge
 e = 1.602176634 * 10 ** -19 # C
@@ -90,5 +88,31 @@ def d_dr_fT(r):
 def Hc(R, Rl, S, Il):
     """
     Returns the Fermi contact interaction between an electron at position R with spin S and a nucleus with position Rl and spin Il.
+    """
+    return (m0 / 4 * np.pi) * (8 * np.pi / 3) * np.abs(gamma_s) * gamma_l * ((1 / (4 * np.pi * R ** 2)) * d_dr_fT(R - Rl) * np.matmul(S, Il))
+
+# Dipolar tensor
+def D(R):
+    matrix = []
+    for i in range(len(R)):
+        row = []
+        for j in range(len(R)):
+            term = ((3 * R[i] * R[j] - R ** 2 * (i == j)) / R ** 5) * fT(R)
+            row.append(term)
+        matrix.append(row)
+    
+    return np.array(matrix)
+
+# Dipolar coupling Hamiltonian
+def Hdip(R, Rl, S, Il):
+    """
+    Returns the diploar coupling between an electron at position R with spin S and a nucleus with position Rl and spin Il.
     """ 
-    return (m0 / 4 * np.pi) * (8 * np.pi / 3) * np.abs(gamma_s) * gamma_l * ((1 / (4 * np.pi * r ** 2)) * d_dr_fT(R - Rl) * np.matmul(S, Il))
+    return (m0 / 4 * np.pi) * np.abs(gamma_s) * gamma_l * np.matmul(np.matmul(S, D(R - Rl)), Il)
+
+# Orbital coupling Hamiltonian
+def Horb(R, Rl, Ll, Il):
+    """
+    Returns the diploar coupling between an electron at position R with orbital angular momentum Ll about site l and a nucleus with position Rl and spin Il.
+    """ 
+    return (m0 / 4 * np.pi) * np.abs(gamma_s) * gamma_l * (1 / np.abs(R - Rl) ** 3) * fT(np.abs(R - Rl)) * np.matmul(Ll, Il)
