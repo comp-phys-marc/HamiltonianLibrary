@@ -46,7 +46,8 @@ kz = 1 # kg * m / s
 K = np.array([kx, ky, kz])
 
 # Luttinger Hamiltonian for hole spins
-H = (gamma1 + 5 * gamma2 / 2) * ((hbar ** 2 * np.dot(K, K)) / (2 * m0)) \
+def Hlutt(gamma1, gamma2, gamma3, K):
+    return (gamma1 + 5 * gamma2 / 2) * ((hbar ** 2 * np.dot(K, K)) / (2 * m0)) \
     + gamma2 * (hbar ** 2 / m0) * (kx ** 2 * Sx ** 2 + ky ** 2 * Sy ** 2 + kz ** 2 * Sz ** 2) \
         + gamma3 * (hbar ** 2 / (2 * m0)) * (((kx * ky + ky * kx) / 2) * ((Sx * Sy + Sy * Sx) / 2)) \
             * (((ky * kz + kz * ky) / 2) * ((Sy * Sz + Sz * Sy) / 2)) * (((kz * kx + kx * kz) / 2) * ((Sz * Sx + Sx * Sz) / 2))
@@ -137,7 +138,7 @@ def Hhf(R, S, nuclei):
     return res
 
 
-nuclei = [[np.array([0 * 10 ** -6, 0 * 10 ** -6, 0 * 10 ** -6]), np.array([1, 0, 0, 0]), np.array([1, 0, 0, 0])]]  # is np.array([1, 0, 0, 0]) how to represent a spin 3/2 spin and angular momentum? See https://physics.stackexchange.com/questions/607218/how-would-the-eigenstates-of-a-particle-with-spin-3-2-look-like
+nuclei = [[np.array([0 * 10 ** -6, 0 * 10 ** -6, 0 * 10 ** -6]), np.array([1, 0, 0, 0]), np.array([1, 0, 0, 0])]]
 
 
 def fermi_contact_interaction(dimension):
@@ -195,7 +196,7 @@ def plot_interaction(interaction):
     plot_examples(my_cmap, [interaction(0), interaction(1)])
 
 if __name__ == "__main__":
-    # plot_interaction(fermi_contact_interaction)
+    plot_interaction(fermi_contact_interaction)
     # plot_interaction(orbital_coupling)
-    plot_interaction(dipolar_coupling)
+    # plot_interaction(dipolar_coupling)
     print("done")
