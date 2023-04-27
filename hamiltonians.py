@@ -137,7 +137,7 @@ def Hhf(R, S, nuclei):
     return res
 
 
-nuclei = [[np.array([5 * 10 ** -6, 5 * 10 ** -6, 0 * 10 ** -6]), Sx, np.array([1, 0, 0, 0])]]  # is np.array([1, 0, 0, 0]) how to represent a spin 3/2 spin? See https://physics.stackexchange.com/questions/607218/how-would-the-eigenstates-of-a-particle-with-spin-3-2-look-like
+nuclei = [[np.array([0 * 10 ** -6, 0 * 10 ** -6, 0 * 10 ** -6]), np.array([1, 0, 0, 0]), np.array([1, 0, 0, 0])]]  # is np.array([1, 0, 0, 0]) how to represent a spin 3/2 spin and angular momentum? See https://physics.stackexchange.com/questions/607218/how-would-the-eigenstates-of-a-particle-with-spin-3-2-look-like
 
 
 def fermi_contact_interaction(dimension):
@@ -152,20 +152,54 @@ def fermi_contact_interaction(dimension):
 
     return data
 
-colors = ["#ffffcc", "#a1dab4", "#41b6c4", "#2c7fb8", "#253494"]
-my_cmap = ListedColormap(colors, name="my_cmap")
+def orbital_coupling(dimension):
+    data = []
+    for i in range(10):
+        row = []
+        for j in range(10):
+            electron = [np.array([i * 10 ** -6, j * 10 ** -6, 0 * 10 ** -6]), np.array([1, 0, 0, 0])]
+            ham = Horb(electron[0], nuclei[0][0], nuclei[0][1], nuclei[0][2])
+            row.append(ham[dimension])
+        data.append(row)
 
-def plot_examples(colormap, datasets):
-    """
-    Helper function to plot data with associated colormap.
-    """
-    n = len(datasets)
-    fig, axs = plt.subplots(1, n, figsize=(n * 2 + 2, 3),
-                            constrained_layout=True, squeeze=False)
-    for [ax, data] in zip(axs.flat, datasets):
-        psm = ax.pcolormesh(data, cmap=colormap, rasterized=True, vmin=0, vmax=1 * 10 ** 30)
-        fig.colorbar(psm, ax=ax)
-    plt.show()
+    return data
 
-plot_examples(my_cmap, [fermi_contact_interaction(0), fermi_contact_interaction(1)])
-print("done")
+def plot_fermi_contact_interaction():
+    colors = ["#ffffcc", "#a1dab4", "#41b6c4", "#2c7fb8", "#253494"]
+    my_cmap = ListedColormap(colors, name="my_cmap")
+
+    def plot_examples(colormap, datasets):
+        """
+        Helper function to plot data with associated colormap.
+        """
+        n = len(datasets)
+        fig, axs = plt.subplots(1, n, figsize=(n * 2 + 2, 3),
+                                constrained_layout=True, squeeze=False)
+        for [ax, data] in zip(axs.flat, datasets):
+            psm = ax.pcolormesh(data, cmap=colormap, rasterized=True, vmin=0, vmax=1 * 10 ** 30)
+            fig.colorbar(psm, ax=ax)
+        plt.show()
+
+    plot_examples(my_cmap, [fermi_contact_interaction(0), fermi_contact_interaction(1)])
+
+def plot_orbital_coupling():
+    colors = ["#ffffcc", "#a1dab4", "#41b6c4", "#2c7fb8", "#253494"]
+    my_cmap = ListedColormap(colors, name="my_cmap")
+
+    def plot_examples(colormap, datasets):
+        """
+        Helper function to plot data with associated colormap.
+        """
+        n = len(datasets)
+        fig, axs = plt.subplots(1, n, figsize=(n * 2 + 2, 3),
+                                constrained_layout=True, squeeze=False)
+        for [ax, data] in zip(axs.flat, datasets):
+            psm = ax.pcolormesh(data, cmap=colormap, rasterized=True, vmin=0, vmax=1 * 10 ** 30)
+            fig.colorbar(psm, ax=ax)
+        plt.show()
+
+    plot_examples(my_cmap, [orbital_coupling(0), orbital_coupling(1)])
+
+if __name__ == "__main__":
+    plot_orbital_coupling()
+    print("done")
