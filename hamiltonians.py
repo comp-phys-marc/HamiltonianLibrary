@@ -45,6 +45,7 @@ kz = 1 # kg * m / s
 
 K = np.array([kx, ky, kz])
 
+
 # Luttinger Hamiltonian for hole spins
 def Hlutt(gamma1, gamma2, gamma3, K):
     return (gamma1 + 5 * gamma2 / 2) * ((hbar ** 2 * np.dot(K, K)) / (2 * m0)) \
@@ -52,44 +53,49 @@ def Hlutt(gamma1, gamma2, gamma3, K):
         + gamma3 * (hbar ** 2 / (2 * m0)) * (((kx * ky + ky * kx) / 2) * ((Sx * Sy + Sy * Sx) / 2)) \
             * (((ky * kz + kz * ky) / 2) * ((Sy * Sz + Sz * Sy) / 2)) * (((kz * kx + kx * kz) / 2) * ((Sz * Sx + Sx * Sz) / 2))
 
+
 # elmentary charge
-e = 1.602176634 * 10 ** -19 # C
+e = 1.602176634 * 10 ** -19  # C
 
 # Bohr magneton
-mB = e * hbar / (2 * m0) # J / T
+mB = e * hbar / (2 * m0)  # J / T
 
 # vacuum permeability constant
-m0 = 1.256637062 * 10 ** -6 # N * A ** -2
+m0 = 1.256637062 * 10 ** -6  # N * A ** -2
 
 # electron gyromagnetic ratio
-gamma_s = -2 * mB # J / T
+gamma_s = -2 * mB  # J / T
 
 # nuclear gyromagnetic ratio
-gamma_l = 1 # C / kg
+gamma_l = 1  # C / kg
 
 # nuclear core charge
-Z = 1 # C
+Z = 1  # C
 
 # fine structure constant
 alpha = 1 / 137
 
 # speed of light in vacuum
-c = 299792458 # m / s
+c = 299792458  # m / s
 
 # Bohr radius
-aB = hbar / (m0 * c * alpha) # m
+aB = hbar / (m0 * c * alpha)  # m
 
 # Thompson radius
-rT = Z * alpha ** 2 * aB # m
+rT = Z * alpha ** 2 * aB  # m
+
 
 # Localized functions
 def fT(r):
     return r / (r + rT / 2)
 
+
 def d_dr_fT(r):
     return (rT / 2) / (rT / 2 + r) ** 2
 
+
 prefix = (m0 / 4 * np.pi) * np.abs(gamma_s) * gamma_l
+
 
 # Fermi contact interaction Hamiltonian
 def Hc(R, Rl, S, Il):
@@ -97,6 +103,7 @@ def Hc(R, Rl, S, Il):
     Returns the Fermi contact interaction between an electron at position R with spin S and a nucleus with position Rl and spin Il.
     """
     return prefix * (8 * np.pi / 3) * ((1 / (4 * np.pi * R ** 2)) * d_dr_fT(R - Rl) * np.dot(S, Il))
+
 
 # Dipolar tensor
 def D(R):
@@ -110,6 +117,7 @@ def D(R):
     
     return np.array(matrix)
 
+
 # Dipolar coupling Hamiltonian
 def Hdip(R, Rl, S, Il):
     """
@@ -117,12 +125,14 @@ def Hdip(R, Rl, S, Il):
     """ 
     return prefix * np.dot(S, np.dot(D(R - Rl), Il))  # TODO: how to make dimensions match dipolar tensor?
 
+
 # Orbital coupling Hamiltonian
 def Horb(R, Rl, Ll, Il):
     """
     Returns the orbital coupling between an electron at position R with orbital angular momentum Ll about site l and a nucleus with position Rl and spin Il.
     """ 
     return prefix * (1 / np.abs(R - Rl) ** 3) * fT(np.abs(R - Rl)) * np.dot(Ll, Il)
+
 
 # Dirac equation
 def Hhf(R, S, nuclei):
@@ -153,6 +163,7 @@ def fermi_contact_interaction(dimension):
 
     return data
 
+
 def orbital_coupling(dimension):
     data = []
     for i in range(10):
@@ -165,6 +176,7 @@ def orbital_coupling(dimension):
 
     return data
 
+
 def dipolar_coupling(dimension):
     data = []
     for i in range(10):
@@ -176,6 +188,7 @@ def dipolar_coupling(dimension):
         data.append(row)
 
     return data
+
 
 def plot_interaction(interaction):
     colors = ["#ffffcc", "#a1dab4", "#41b6c4", "#2c7fb8", "#253494"]
@@ -194,6 +207,7 @@ def plot_interaction(interaction):
         plt.show()
 
     plot_examples(my_cmap, [interaction(0), interaction(1)])
+
 
 if __name__ == "__main__":
     plot_interaction(fermi_contact_interaction)
