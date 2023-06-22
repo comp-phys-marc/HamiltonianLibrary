@@ -6,10 +6,10 @@ import matplotlib as mpl
 from matplotlib.colors import ListedColormap
 
 # reduced Planck constant
-hbar = 1 # or 1.054571817 * 10 ** -34 J * s
+hbar = 1  # or 1.054571817 * 10 ** -34 J * s
 
 # bare electron mass
-m0 = 9.109 * 10 ** -39 # kg
+m0 = 9.109 * 10 ** -39  # kg
 
 # Spin-3/2 matrices
 Sx = 0.5 * hbar * np.matrix([
@@ -32,6 +32,19 @@ Sz = 0.5 * hbar * np.matrix([
     [0, 0, -1, 0],
     [0, 0, 0, -3]
 ])
+
+# Spin-1/2 matrices
+Sx_half = 0.5 * hbar * np.matrix([
+    [0, 1],
+    [1, 0]
+])
+
+Sz_half = 0.5 * hbar * np.matrix([
+    [1, 0],
+    [0, -1]
+])
+
+Sy_half = complex(0, -1) * Sx_half * Sz_half
 
 # Luttinger parameters
 gamma1 = 1
@@ -146,6 +159,14 @@ def Hhf(R, S, nuclei):
         i += 1
 
     return res
+
+
+# single confined particle Zeeman interaction
+def Hzeeman(B):
+    S = [Sx_half, Sy_half, Sz_half]
+    res = 0
+    for dimension in range(len(B)):
+        res += gamma_s * mB * B[dimension] * S[dimension]  # TODO: do we use gamma_s for holes?
 
 
 nuclei = [[np.array([0 * 10 ** -6, 0 * 10 ** -6, 0 * 10 ** -6]), np.array([1, 0, 0, 0]), np.array([1, 0, 0, 0])]]
